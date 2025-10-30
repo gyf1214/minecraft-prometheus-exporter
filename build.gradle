@@ -141,9 +141,9 @@ dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
 	// Prometheus dependencies.
-	compileAndShadow group: 'io.prometheus', name: 'simpleclient', version: '0.16.0'
-	compileAndShadow group: 'io.prometheus', name: 'simpleclient_httpserver', version: '0.16.0'
-	compileAndShadow group: 'io.prometheus', name: 'simpleclient_hotspot', version: '0.16.0'
+	compileAndShadow group: 'io.prometheus', name: 'simpleclient', version: prometheus_version
+	compileAndShadow group: 'io.prometheus', name: 'simpleclient_httpserver', version: prometheus_version
+	compileAndShadow group: 'io.prometheus', name: 'simpleclient_hotspot', version: prometheus_version
 }
 
 // Expand variables in resource files.
