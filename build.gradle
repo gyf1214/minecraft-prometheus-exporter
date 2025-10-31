@@ -65,25 +65,6 @@ minecraft {
 	// Default run configurations.
 	// These can be tweaked, removed, or duplicated as needed.
 	runs {
-		client {
-			workingDirectory project.file('run')
-
-			// Recommended logging data for a userdev environment
-			property 'forge.logging.markers', 'REGISTRIES'
-
-			// Recommended logging level for the console
-			property 'forge.logging.console.level', 'debug'
-
-			// Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-			property 'forge.enabledGameTestNamespaces', mod_id
-
-			mods {
-				prometheus_exporter {
-					source sourceSets.main
-				}
-			}
-		}
-
 		server {
 			workingDirectory project.file('run')
 
@@ -96,24 +77,9 @@ minecraft {
 			// Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
 			property 'forge.enabledGameTestNamespaces', mod_id
 
-			mods {
-				prometheus_exporter {
-					source sourceSets.main
-				}
-			}
-		}
+            jvmArgs '-ea'
 
-		data {
-			workingDirectory project.file('run')
-
-			// Recommended logging data for a userdev environment
-			property 'forge.logging.markers', 'REGISTRIES'
-
-			// Recommended logging level for the console
-			property 'forge.logging.console.level', 'debug'
-
-			// Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-			args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            ideaModule project.name + '.main'
 
 			mods {
 				prometheus_exporter {
@@ -133,6 +99,13 @@ configurations {
 	minecraftLibrary.extendsFrom compileAndShadow
 }
 
+repositories {
+    maven {
+        name = 'shsts'
+        url = 'https://www.shsts.org/m2'
+    }
+}
+
 dependencies {
 	// Specify the version of Minecraft to use, If this is any group other then
 	// 'net.minecraft' it is assumed that the dep is a ForgeGradle 'patcher'
@@ -144,6 +117,11 @@ dependencies {
 	compileAndShadow group: 'io.prometheus', name: 'simpleclient', version: prometheus_version
 	compileAndShadow group: 'io.prometheus', name: 'simpleclient_httpserver', version: prometheus_version
 	compileAndShadow group: 'io.prometheus', name: 'simpleclient_hotspot', version: prometheus_version
+
+    // Tinactory
+    compileOnly fg.deobf("org.shsts.tinactory:Tinactory:${minecraft_version}-${tinactory_version}:api")
+    runtimeOnly fg.deobf("org.shsts.tinycorelib:core:${minecraft_version}-${tinycorelib_version}")
+    runtimeOnly fg.deobf("org.shsts.tinactory:Tinactory:${minecraft_version}-${tinactory_version}")
 }
 
 // Expand variables in resource files.
