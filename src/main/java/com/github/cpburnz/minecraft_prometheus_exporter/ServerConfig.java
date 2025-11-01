@@ -29,6 +29,11 @@ public class ServerConfig {
     public boolean collector_mc;
 
     /**
+     * Whether collecting metrics about tinactory is enabled.
+     */
+    public boolean collector_tinactory;
+
+    /**
      * How to handle dimension (world) tick event errors.
      */
     public TickErrorPolicy collector_mc_dimension_tick_errors;
@@ -91,6 +96,7 @@ public class ServerConfig {
         this.collector_mc = this.internal_spec.collector_mc.get();
         this.collector_mc_dimension_tick_errors = this.internal_spec.collector_mc_dimension_tick_errors.get();
         this.collector_mc_entities = this.internal_spec.collector_mc_entities.get();
+        this.collector_tinactory = this.internal_spec.collector_tinactory.get();
         this.web_listen_address = this.internal_spec.web_listen_address.get();
         this.web_listen_port = this.internal_spec.web_listen_port.get();
 
@@ -104,6 +110,7 @@ public class ServerConfig {
             this.collector_mc_dimension_tick_errors
         );
         LOG.debug("collector.mc_entities: {}", this.collector_mc_entities);
+        LOG.debug("collector.tinactory: {}", this.collector_tinactory);
         LOG.debug("web.listen_address: {}", this.web_listen_address);
         LOG.debug("web.listen_port: {}", this.web_listen_port);
     }
@@ -148,6 +155,7 @@ public class ServerConfig {
         public final ForgeConfigSpec.BooleanValue collector_mc;
         public final ForgeConfigSpec.EnumValue<TickErrorPolicy> collector_mc_dimension_tick_errors;
         public final ForgeConfigSpec.BooleanValue collector_mc_entities;
+        public final ForgeConfigSpec.BooleanValue collector_tinactory;
         public final ForgeConfigSpec.ConfigValue<String> web_listen_address;
         public final ForgeConfigSpec.IntValue web_listen_port;
 
@@ -199,6 +207,10 @@ public class ServerConfig {
                         + "(world)."
                 )
                 .define("mc_entities", true);
+
+            this.collector_tinactory = builder
+                .comment("Enable collecting metrics about Tinactory")
+                .define("tinactory", true);
 
             builder.pop();
             builder

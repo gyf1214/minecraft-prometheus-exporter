@@ -3,10 +3,14 @@ package com.github.cpburnz.minecraft_prometheus_exporter;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.HTTPServer;
 import io.prometheus.client.hotspot.DefaultExports;
+import javax.annotation.ParametersAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -14,15 +18,21 @@ import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.shsts.tinactory.api.metrics.IMetricsCallback;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * The PrometheusExporterMod class defines the mod.
  */
 @Mod(PrometheusExporterMod.MOD_ID)
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class PrometheusExporterMod {
 
     /**
@@ -56,9 +66,17 @@ public class PrometheusExporterMod {
     private final ServerConfig config;
 
     /**
+     * Tinactory metrics collector.
+     */
+    private TinactoryCollector tinactory_collector;
+
+    /**
      * Construct the instance.
      */
     public PrometheusExporterMod() {
+        var modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modEventBus.addGenericListener(IMetricsCallback.class, this::onRegisterMetricsCallback);
+
         // Register to receive events.
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -98,6 +116,12 @@ public class PrometheusExporterMod {
         if (this.config.collector_mc) {
             this.mc_collector = new MinecraftCollector(this.config, this.mc_server);
             this.mc_collector.register();
+        }
+
+        // Collect Tinactory stats.
+        if (this.config.collector_tinactory) {
+            this.tinactory_collector = new TinactoryCollector();
+            this.tinactory_collector.register();
         }
     }
 
@@ -190,5 +214,21 @@ public class PrometheusExporterMod {
                 this.mc_collector.stopServerTick();
             }
         }
+    }
+
+    private class MetricsCallback extends ForgeRegistryEntry<IMetricsCallback> implements IMetricsCallback {
+        @Override
+        public void report(String name, List<String> labels, double val) {
+            if (tinactory_collector != null) {
+                tinactory_collector.report(name, labels, val);
+            }
+        }
+    }
+
+    private void onRegisterMetricsCallback(RegistryEvent.Register<IMetricsCallback> event) {
+        var loc = new ResourceLocation(MOD_ID, "metrics");
+        var callback = new MetricsCallback();
+        callback.setRegistryName(loc);
+        event.getRegistry().register(callback);
     }
 }
