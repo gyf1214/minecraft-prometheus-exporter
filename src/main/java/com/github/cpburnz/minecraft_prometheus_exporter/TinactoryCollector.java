@@ -21,7 +21,8 @@ public class TinactoryCollector extends Collector implements Collector.Describab
     public TinactoryCollector() {
         counter("electric_consumed", "Electric Consumed", "team");
         counter("electric_generated", "Electric Generated", "team");
-        counter("electric_buffered", "Electric Buffered", "team");
+        counter("electric_buffer_charged", "Electric Buffer Charged", "team");
+        counter("electric_buffer_discharged", "Electric Buffer Discharged", "team");
     }
 
     private void counter(String name, String description, String... labels) {
