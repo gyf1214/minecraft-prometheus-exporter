@@ -24,3 +24,5 @@
 
 # Development
 .env
+MEMORY.md
+scratch/
