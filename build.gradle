@@ -83,7 +83,12 @@ dependencies {
 	compileAndShadow 'io.prometheus:simpleclient_hotspot:0.16.0'
 
 	compileOnly "org.shsts.tinactory:mod:${tinactory_version}"
+	additionalRuntimeClasspath 'io.prometheus:simpleclient:0.16.0'
+	additionalRuntimeClasspath 'io.prometheus:simpleclient_common:0.16.0'
+	additionalRuntimeClasspath 'io.prometheus:simpleclient_httpserver:0.16.0'
+	additionalRuntimeClasspath 'io.prometheus:simpleclient_hotspot:0.16.0'
 	localRuntime "org.shsts.tinactory:mod:${tinactory_version}"
+	localRuntime "org.shsts.tinycorelib:core:${tinycorelib_version}"
 }
 
 tasks.withType(ProcessResources).configureEach {
