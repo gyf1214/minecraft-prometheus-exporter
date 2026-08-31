@@ -4,8 +4,10 @@ import java.io.IOException;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
@@ -14,6 +16,9 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
+import org.shsts.tinactory.api.TinactoryKeys;
+import org.shsts.tinactory.api.metrics.IMetricsCallback;
 import org.slf4j.Logger;
 
 import io.prometheus.client.CollectorRegistry;
@@ -48,6 +53,20 @@ public class PrometheusExporterMod {
 	private MinecraftCollector mc_collector;
 
 	/**
+	 * The Tinactory metrics collector.
+	 */
+	private TinactoryCollector tinactory_collector;
+
+	/**
+	 * The callback registered with Tinactory's metrics callback registry.
+	 */
+	private final IMetricsCallback tinactory_metrics_callback = (name, labels, value) -> {
+		if (this.tinactory_collector != null) {
+			this.tinactory_collector.report(name, labels, value);
+		}
+	};
+
+	/**
 	 * The Minecraft server.
 	 */
 	private MinecraftServer mc_server;
@@ -60,9 +79,10 @@ public class PrometheusExporterMod {
 	/**
 	 * Construct the instance.
 	 */
-	public PrometheusExporterMod() {
+	public PrometheusExporterMod(IEventBus mod_event_bus) {
 		// Register to receive events.
 		NeoForge.EVENT_BUS.register(this);
+		mod_event_bus.addListener(this::onRegister);
 
 		// Register the server config.
 		this.config = new ServerConfig();
@@ -106,6 +126,12 @@ public class PrometheusExporterMod {
 			this.mc_collector = new MinecraftCollector(this.config, this.mc_server);
 			this.mc_collector.register();
 		}
+
+		// Collect Tinactory electricity metrics.
+		if (this.config.collector_tinactory) {
+			this.tinactory_collector = new TinactoryCollector();
+			this.tinactory_collector.register();
+		}
 	}
 
 	/**
@@ -118,6 +144,19 @@ public class PrometheusExporterMod {
 		int port = this.config.web_listen_port;
 		this.http_server = new HTTPServer(address, port, true);
 		LOG.info("Listening on {}:{}", address, port);
+	}
+
+	/**
+	 * Register the Tinactory metrics callback.
+	 *
+	 * @param event The registry event.
+	 */
+	private void onRegister(RegisterEvent event) {
+		event.register(
+			TinactoryKeys.METRICS_CALLBACKS_KEY,
+			ResourceLocation.fromNamespaceAndPath(MOD_ID, "metrics"),
+			() -> this.tinactory_metrics_callback
+		);
 	}
 
 	/**
