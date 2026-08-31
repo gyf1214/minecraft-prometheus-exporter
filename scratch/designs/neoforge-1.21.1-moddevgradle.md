@@ -28,12 +28,4 @@ separate metadata-generation layout.
 
 ## Pending Changes
 
-- Replace NeoGradle UserDev with ModDevGradle and update the Gradle wrapper and
-  supporting build-plugin versions required for compatibility.
-- Upgrade the project’s NeoForge dependency to 21.1.249 while retaining
-  Minecraft 1.21.1 and Java 21.
-- Translate run, mod source-set, repository, dependency, and custom shadow
-  configuration to the ModDevGradle DSL while preserving Prometheus and
-  Tinactory development/runtime behavior.
-- Compile and assemble the migrated project, confirming the output JAR still
-  excludes Tinactory classes.
+None.
