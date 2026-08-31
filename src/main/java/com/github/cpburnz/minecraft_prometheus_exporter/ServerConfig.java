@@ -29,6 +29,11 @@ public class ServerConfig {
 	public boolean collector_mc;
 
 	/**
+	 * Whether collecting metrics reported by Tinactory is enabled.
+	 */
+	public boolean collector_tinactory;
+
+	/**
 	 * How to handle dimension (world) tick event errors.
 	 */
 	public TickErrorPolicy collector_mc_dimension_tick_errors;
@@ -89,6 +94,7 @@ public class ServerConfig {
 		// Get config values.
 		this.collector_jvm = this.internal_spec.collector_jvm.get();
 		this.collector_mc = this.internal_spec.collector_mc.get();
+		this.collector_tinactory = this.internal_spec.collector_tinactory.get();
 		this.collector_mc_dimension_tick_errors = this.internal_spec.collector_mc_dimension_tick_errors.get();
 		this.collector_mc_entities = this.internal_spec.collector_mc_entities.get();
 		this.web_listen_address = this.internal_spec.web_listen_address.get();
@@ -99,6 +105,7 @@ public class ServerConfig {
 
 		LOG.debug("collector.jvm: {}", this.collector_jvm);
 		LOG.debug("collector.mc: {}", this.collector_mc);
+		LOG.debug("collector.tinactory: {}", this.collector_tinactory);
 		LOG.debug(
 			"collector.mc_dimension_tick_errors: {}",
 			this.collector_mc_dimension_tick_errors
@@ -146,6 +153,7 @@ public class ServerConfig {
 
 		public final ModConfigSpec.BooleanValue collector_jvm;
 		public final ModConfigSpec.BooleanValue collector_mc;
+		public final ModConfigSpec.BooleanValue collector_tinactory;
 		public final ModConfigSpec.EnumValue<TickErrorPolicy> collector_mc_dimension_tick_errors;
 		public final ModConfigSpec.BooleanValue collector_mc_entities;
 		public final ModConfigSpec.ConfigValue<String> web_listen_address;
@@ -168,6 +176,10 @@ public class ServerConfig {
 			this.collector_mc = builder
 				.comment("Enable collecting metrics about the Minecraft server.")
 				.define("mc", true);
+
+			this.collector_tinactory = builder
+				.comment("Enable collecting metrics reported by Tinactory.")
+				.define("tinactory", true);
 
 			this.collector_mc_dimension_tick_errors = builder
 				.comment(
